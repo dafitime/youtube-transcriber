@@ -4,6 +4,7 @@ from google.oauth2 import service_account
 import yt_dlp as youtube_dl
 import uuid
 import os
+from docx import Document
 
 def transcribe_youtube_video(url, api_key):
     """Transcribes a YouTube video using Whisper and YouTube Data API metadata.
@@ -78,8 +79,17 @@ def transcribe_youtube_video(url, api_key):
         print(f"Error transcribing audio: {e}")
         return {}
 
+    # Clean up the transcription
+    cleaned_text = clean_transcription(transcribed_text)
+
+    # Save the transcription to a Word document
+    save_to_word(cleaned_text, f"{video_id}.docx")
+
+    # Delete the audio file
+    os.remove(audio_file_path)
+
     return {
-        "transcribed_text": transcribed_text,
+        "transcribed_text": cleaned_text,
         "title": title,
         "description": description,
         "published_at": published_at,
@@ -100,8 +110,41 @@ def transcribe_audio_with_whisper(audio_file):
     result = model.transcribe(audio_file)
     return result["text"]
 
+def clean_transcription(text):
+    """Cleans up the transcribed text for better readability.
+
+    Args:
+        text: The transcribed text.
+
+    Returns:
+        The cleaned text.
+    """
+    # Example cleanup: remove extra spaces, fix capitalization, etc.
+    cleaned_text = text.strip()
+    cleaned_text = ' '.join(cleaned_text.split())
+    
+    # Split text into paragraphs for better readability
+    sentences = cleaned_text.split('. ')
+    paragraphs = [' '.join(sentences[i:i+5]) + '.' for i in range(0, len(sentences), 5)]
+    formatted_text = '\n\n'.join(paragraphs)
+    
+    return formatted_text
+
+def save_to_word(text, filename):
+    """Saves the cleaned text to a Word document.
+
+    Args:
+        text: The cleaned text.
+        filename: The name of the Word document file.
+    """
+    doc = Document()
+    for paragraph in text.split('\n\n'):
+        doc.add_paragraph(paragraph)
+    doc.save(filename)
+
+
 # Replace 'YOUR_API_KEY' with your actual API key
-api_key = 'YOUR_API_KEY'
+api_key = 'AIzaSyDA6hLHwJLC6Na-CWYFv8YlxE-DYZx0K8M'
 
 # Get the YouTube video URL from the user
 url = input("Enter the YouTube video URL: ")
