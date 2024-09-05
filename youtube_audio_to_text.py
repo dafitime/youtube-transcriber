@@ -101,7 +101,7 @@ def transcribe_audio_with_whisper(audio_file):
     return result["text"]
 
 # Replace 'YOUR_API_KEY' with your actual API key
-api_key = 'AIzaSyDA6hLHwJLC6Na-CWYFv8YlxE-DYZx0K8M'
+api_key = 'YOUR_API_KEY'
 
 # Get the YouTube video URL from the user
 url = input("Enter the YouTube video URL: ")
